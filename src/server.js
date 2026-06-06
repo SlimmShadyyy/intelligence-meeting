@@ -16,7 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const meetingRoutes = require('./routes/meetingRoutes');
 
-const { swaggerUi, specs } = require('./src/swagger');
+const { swaggerUi, specs } = require('./swagger');
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 

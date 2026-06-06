@@ -22,7 +22,7 @@
 
 ## Bonus Milestones (Optional) 
 - [x] Docker support 
-- [ ] CI/CD pipeline 
-- [ ] Redis caching 
+- [x] CI/CD pipeline 
+- [x] Redis caching 
 - [x] Rate limiting 
 - [x] Integration tests

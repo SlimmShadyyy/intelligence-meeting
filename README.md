@@ -22,9 +22,15 @@ This project includes a built-in UI dashboard so you can test the entire pipelin
 
 
 3. **Initialize Database:**
+ Database Configuration
+   This project uses SQLite for local development and PostgreSQL for production deployment.
+   
+   Local: Ensure DATABASE_URL="file:./dev.db" is in your .env file and provider = "sqlite" is set in schema.prisma.
+   
+   Production: Use a PostgreSQL connection string for the DATABASE_URL environment variable and set provider = "postgresql" in schema.prisma.
     `npx prisma db push`
 
-4. **Run the Server:**
+5. **Run the Server:**
     `npm run dev`
 
 ## 🐳 Docker Support

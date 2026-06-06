@@ -26,7 +26,11 @@ router.get('/:id', getMeeting);
  * responses:
  * 200:
  * description: Analysis completed successfully
+ * 404:
+ * description: Meeting not found
  */
+
+
 router.post('/:id/analyze', (req, res, next) => {
     analyzeMeeting(req, res, next);
 });

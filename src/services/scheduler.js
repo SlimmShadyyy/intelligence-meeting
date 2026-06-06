@@ -26,7 +26,6 @@ const startScheduler = () => {
             // 2. Trigger reminder notifications
             for (const item of overdueItems) {
                 await sendSlackReminder(item);
-                // 3. Record reminder history (Requirement 7.3)
                 console.log(`[HISTORY] Reminder triggered for task: ${item.task} to ${item.assignee}`);
             }
 

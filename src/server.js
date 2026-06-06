@@ -44,7 +44,7 @@ app.get('/api/evaluation', (req, res) => {
         candidateName: "Ananniya Acharya",
         email: "ananniyaacharya@gmail.com",
         repositoryUrl: "https://github.com/yourusername/hintro-meeting-intelligence",
-        deployedUrl: "Will add later",
+        deployedUrl: "https://intelligence-meeting.onrender.com",
         externalIntegration: "Slack Webhook",
         features: ["Authentication", "AI Analysis", "Reminder Scheduler"]
     });
@@ -62,9 +62,8 @@ app.use((req, res, next) => {
 // Mount global error handler last
 app.use(globalErrorHandler);
 
-// Only start the server if we aren't running tests
+
 if (process.env.NODE_ENV !== 'test') {
-    // Turn on the background job!
     startScheduler(); 
 
     app.listen(PORT, () => {

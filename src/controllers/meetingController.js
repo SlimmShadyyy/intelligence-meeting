@@ -92,7 +92,6 @@ const listMeetings = async (req, res, next) => {
 };
 
 // POST /api/meetings/:id/analyze
-// POST /api/meetings/:id/analyze
 const analyzeMeeting = async (req, res, next) => {
     try {
         const { id } = req.params;

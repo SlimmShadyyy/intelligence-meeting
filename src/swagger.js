@@ -7,8 +7,19 @@ const options = {
         info: {
             title: 'Hintro Meeting API',
             version: '1.0.0',
-            description: 'API documentation for the Meeting and Action Item tracking system.',
         },
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                },
+            },
+        },
+        security: [{
+            bearerAuth: [],
+        }],
         servers: [
             { url: 'http://localhost:3000', description: 'Local server' },
             { url: 'https://intelligence-meeting.onrender.com', description: 'Production server' },

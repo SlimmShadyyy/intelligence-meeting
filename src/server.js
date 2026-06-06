@@ -16,6 +16,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const meetingRoutes = require('./routes/meetingRoutes');
 
+const { swaggerUi, specs } = require('./src/swagger');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 // Middleware
 app.use(cors()); 
 app.use(express.json());

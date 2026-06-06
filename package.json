@@ -23,6 +23,8 @@
     "node-cron": "^4.2.1",
     "prisma": "^6.19.3",
     "redis": "^6.0.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^14.0.0",
     "winston": "^3.19.0"
   },

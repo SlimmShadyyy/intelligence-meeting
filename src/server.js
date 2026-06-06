@@ -11,7 +11,6 @@ const { protect } = require('./middlewares/authMiddleware');
 const { startScheduler } = require('./services/scheduler');
 const apiLimiter = require('./middlewares/rateLimiter');
 
-const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const meetingRoutes = require('./routes/meetingRoutes');

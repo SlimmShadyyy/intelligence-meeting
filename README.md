@@ -29,7 +29,6 @@ This project includes a built-in UI dashboard so you can test the entire pipelin
 
 ## 🐳 Docker Support
     To run this application via Docker:
-    ```Bash
         docker build -t hintro-api .
         docker run -p 3000:3000 --env-file .env hintro-api
 

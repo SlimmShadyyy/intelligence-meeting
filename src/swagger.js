@@ -21,8 +21,8 @@ const options = {
             bearerAuth: [],
         }],
         servers: [
-            { url: 'http://localhost:3000', description: 'Local server' },
             { url: 'https://intelligence-meeting.onrender.com', description: 'Production server' },
+            { url: 'http://localhost:3000', description: 'Local server' },
         ],
     },
     // This tells swagger to look for JSDoc comments in your routes

@@ -14,20 +14,20 @@ router.get('/:id', getMeeting);
 /**
  * @swagger
  * /api/meetings/{id}/analyze:
- * post:
- * summary: Analyze meeting transcript with AI
- * description: Parses meeting transcripts using Gemini AI and extracts action items.
- * parameters:
- * - in: path
- * name: id
- * required: true
- * schema:
- * type: string
- * responses:
- * 200:
- * description: Analysis completed successfully
- * 404:
- * description: Meeting not found
+ *   post:
+ *     summary: Analyze meeting transcript with AI
+ *     description: Parses meeting transcripts using Gemini AI and extracts action items.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Analysis completed successfully
+ *       404:
+ *         description: Meeting not found
  */
 
 

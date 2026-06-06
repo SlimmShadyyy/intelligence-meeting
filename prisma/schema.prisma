@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Meeting {
+  id           String              @id @default(uuid())
+  title        String
+  meetingDate  DateTime
+  participants String              // Stored as a JSON string for simplicity in SQLite
+  transcripts  TranscriptSegment[]
+  actionItems  ActionItem[]
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+}
+
+model TranscriptSegment {
+  id        String  @id @default(uuid())
+  meetingId String
+  timestamp String
+  speaker   String
+  text      String
+  
+  // Relation back to the meeting
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+}
+
+model ActionItem {
+  id        String   @id @default(uuid())
+  meetingId String
+  task      String
+  assignee  String
+  status    String   @default("PENDING") // PENDING, IN PROGRESS, COMPLETED
+  dueDate   DateTime
+  
+  // Relation back to the meeting
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

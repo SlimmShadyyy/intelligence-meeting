@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hintro API | Evaluator Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans h-screen flex flex-col">
+
+    <header class="bg-gray-800 border-b border-gray-700 p-6 shadow-lg">
+        <h1 class="text-2xl font-bold text-blue-400">Hintro Meeting Intelligence API</h1>
+        <p class="text-sm text-gray-400 mt-1">Evaluator Demo Dashboard</p>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        
+        <div class="w-1/3 bg-gray-800 p-6 border-r border-gray-700 overflow-y-auto space-y-6">
+            
+            <div class="p-4 bg-gray-900 rounded-lg border border-gray-700">
+                <h2 class="text-lg font-semibold text-white mb-2">1. Authentication</h2>
+                <p class="text-xs text-gray-400 mb-4">Logs in as admin and saves the JWT Token.</p>
+                <button onclick="runAuth()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded transition">Log In & Get Token</button>
+            </div>
+
+            <div class="p-4 bg-gray-900 rounded-lg border border-gray-700">
+                <h2 class="text-lg font-semibold text-white mb-2">2. Database Storage</h2>
+                <p class="text-xs text-gray-400 mb-4">Creates a meeting with nested transcript data in SQLite.</p>
+                <button onclick="createMeeting()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded transition">Create Mock Meeting</button>
+            </div>
+
+            <div class="p-4 bg-gray-900 rounded-lg border border-gray-700">
+                <h2 class="text-lg font-semibold text-amber-400 mb-2">3. AI Analysis (Gemini)</h2>
+                <p class="text-xs text-gray-400 mb-4">Sends transcript to Gemini for JSON summaries & action items.</p>
+                <button onclick="analyzeMeeting()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-4 rounded transition">Run AI Analysis</button>
+            </div>
+
+            <div class="p-4 bg-gray-900 rounded-lg border border-gray-700">
+                <h2 class="text-lg font-semibold text-emerald-400 mb-2">4. Action Items API</h2>
+                <p class="text-xs text-gray-400 mb-4">Fetches all action items stored in the database.</p>
+                <button onclick="getActionItems()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded transition">Fetch Action Items</button>
+            </div>
+
+            <div class="p-4 bg-gray-900 rounded-lg border border-gray-700 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-pink-500"></div>
+                <h2 class="text-lg font-semibold text-pink-400 mb-2">5. Trigger Overdue Job</h2>
+                <p class="text-xs text-gray-400 mb-4">Fetches overdue items and simulates the webhook payload sent to Slack.</p>
+                <button onclick="triggerOverdueJob()" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded transition">Simulate Cron Job</button>
+            </div>
+
+        </div>
+
+        <div class="w-2/3 bg-black p-6 flex flex-col relative">
+            <h3 class="text-sm text-gray-500 uppercase tracking-wider mb-2 font-semibold">API Response Console</h3>
+            <div class="flex-1 bg-gray-900 rounded-lg border border-gray-700 p-4 overflow-auto font-mono text-sm relative">
+                <div id="statusBadge" class="absolute top-4 right-4 px-2 py-1 rounded text-xs font-bold hidden"></div>
+                <pre id="output" class="text-green-400 whitespace-pre-wrap">Waiting for action...</pre>
+            </div>
+
+            <div id="slackToast" class="absolute bottom-6 right-6 bg-[#222529] border border-[#3f434a] rounded-lg shadow-2xl p-4 w-80 transform transition-all duration-500 translate-y-20 opacity-0 z-50 flex items-start space-x-3 pointer-events-none">
+                <div class="bg-red-500 p-2 rounded flex-shrink-0 mt-1">
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-gray-100 text-sm">Hintro Bot</span>
+                        <span class="bg-gray-700 text-xs text-gray-300 px-1 rounded">APP</span>
+                        <span class="text-xs text-gray-500">Just now</span>
+                    </div>
+                    <p class="text-xs text-gray-300 mt-1 leading-relaxed" id="slackMessageText">
+                        ⚠️ *Overdue Action Item Reminder* ⚠️<br>
+                        *Task:* Loading...<br>
+                        *Assigned To:* Loading...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let jwtToken = '';
+        let currentMeetingId = '';
+
+        const printOutput = (data, status) => {
+            document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+            const badge = document.getElementById('statusBadge');
+            badge.style.display = 'block';
+            if(status >= 200 && status < 300) {
+                badge.innerText = `HTTP ${status} OK`;
+                badge.className = 'absolute top-4 right-4 px-2 py-1 rounded text-xs font-bold bg-green-900 text-green-300';
+            } else {
+                badge.innerText = `HTTP ${status} ERROR`;
+                badge.className = 'absolute top-4 right-4 px-2 py-1 rounded text-xs font-bold bg-red-900 text-red-300';
+            }
+        };
+
+        const runAuth = async () => {
+            document.getElementById('output').innerText = "Authenticating...";
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'admin@example.com', password: 'password123' })
+            });
+            const data = await res.json();
+            if(data.success) jwtToken = data.data.token;
+            printOutput(data, res.status);
+        };
+
+        const createMeeting = async () => {
+            if(!jwtToken) return alert("Please authenticate first!");
+            document.getElementById('output').innerText = "Creating meeting in SQLite...";
+            
+            const payload = {
+                title: "Product Launch Sync",
+                participants: ["evaluator@hintro.com", "candidate@hintro.com"],
+                meetingDate: new Date().toISOString(),
+                transcript: [
+                    { timestamp: "00:05", speaker: "Candidate", text: "Welcome to the demo. Let's review the architecture." },
+                    { timestamp: "00:15", speaker: "Evaluator", text: "Looks great. Make sure to schedule the final deployment task." },
+                    { timestamp: "00:25", speaker: "Candidate", text: "Will do. I will deploy the server to Render tonight." }
+                ]
+            };
+
+            const res = await fetch('/api/meetings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwtToken}` },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if(data.success) currentMeetingId = data.data.id;
+            printOutput(data, res.status);
+        };
+
+        const analyzeMeeting = async () => {
+            if(!jwtToken) return alert("Please authenticate first!");
+            if(!currentMeetingId) return alert("Please create a meeting first!");
+            
+            document.getElementById('output').innerText = "Contacting Gemini API...\nAnalyzing transcript and grounding citations...\nThis usually takes 3-5 seconds...";
+            
+            const res = await fetch(`/api/meetings/${currentMeetingId}/analyze`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${jwtToken}` }
+            });
+            const data = await res.json();
+            printOutput(data, res.status);
+        };
+
+        const getActionItems = async () => {
+            if(!jwtToken) return alert("Please authenticate first!");
+            document.getElementById('output').innerText = "Fetching Action Items...";
+            
+            const res = await fetch(`/api/action-items`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${jwtToken}` }
+            });
+            const data = await res.json();
+            printOutput(data, res.status);
+        };
+
+        const triggerOverdueJob = async () => {
+            if(!jwtToken) return alert("Please authenticate first!");
+            document.getElementById('output').innerText = "Scanning database for overdue action items...";
+            
+            const res = await fetch(`/api/action-items/overdue`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${jwtToken}` }
+            });
+            const data = await res.json();
+            printOutput(data, res.status);
+
+            if(data.success && data.data.length > 0) {
+                const item = data.data[0]; 
+                
+                document.getElementById('slackMessageText').innerHTML = `
+                    ⚠️ <b>*Overdue Action Item Reminder*</b> ⚠️<br>
+                    <b>*Task:*</b> ${item.task}<br>
+                    <b>*Assigned To:*</b> ${item.assignee}<br>
+                    <b>*Due Date:*</b> ${new Date(item.dueDate).toDateString()}
+                `;
+
+                const toast = document.getElementById('slackToast');
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 6000);
+            } else {
+                document.getElementById('output').innerText += "\n\nNo overdue items found! Try creating an overdue item in the database first.";
+            }
+        };
+    </script>
+</body>
+</html>

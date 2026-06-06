@@ -1,0 +1,183 @@
+{
+	"info": {
+		"name": "Hintro Meeting API - Evaluator Demo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Admin Login (Auto-saves Token)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if(jsonData.success) {",
+							"    pm.collectionVariables.set(\"token\", jsonData.data.token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"password123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/auth/login",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "auth", "login"]
+				}
+			}
+		},
+		{
+			"name": "2. Create Meeting (Auto-saves ID)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if(jsonData.success) {",
+							"    pm.collectionVariables.set(\"meetingId\", jsonData.data.id);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"title\": \"Q3 Launch Planning\",\n  \"participants\": [\"candidate@hintro.com\", \"evaluator@hintro.com\"],\n  \"meetingDate\": \"2023-10-01T10:00:00Z\",\n  \"transcript\": [\n    { \"timestamp\": \"00:05\", \"speaker\": \"Candidate\", \"text\": \"Welcome to the demo. Let's review the architecture.\" },\n    { \"timestamp\": \"00:15\", \"speaker\": \"Evaluator\", \"text\": \"Looks great. Make sure to schedule the final deployment task.\" },\n    { \"timestamp\": \"00:25\", \"speaker\": \"Candidate\", \"text\": \"Will do. I will deploy the server to Render tonight.\" }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/meetings",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "meetings"]
+				}
+			}
+		},
+		{
+			"name": "3. Analyze with Gemini AI",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/meetings/{{meetingId}}/analyze",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "meetings", "{{meetingId}}", "analyze"]
+				}
+			}
+		},
+		{
+			"name": "4. Get Action Items",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/action-items",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "action-items"]
+				}
+			}
+		},
+		{
+			"name": "5. Trigger Slack Cron Job",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/action-items/overdue",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "action-items", "overdue"]
+				}
+			}
+		},
+		{
+			"name": "6. Evaluation Endpoint",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/evaluation",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "evaluation"]
+				}
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "meetingId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
